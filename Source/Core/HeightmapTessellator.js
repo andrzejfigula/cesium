@@ -347,24 +347,26 @@ define([
                 maximumHeight = Math.max(maximumHeight, heightSample);
                 minimumHeight = Math.min(minimumHeight, heightSample);
 
-                if (colIndex !== col || rowIndex !== row) {
-                    var percentage = 0.00001;
-                    if (colIndex < 0) {
-                        longitude -= percentage * rectangleWidth;
-                    } else {
-                        longitude += percentage * rectangleWidth;
-                    }
-                    if (rowIndex < 0) {
-                        latitude += percentage * rectangleHeight;
-                    } else {
-                        latitude -= percentage * rectangleHeight;
-                    }
-
-                    cosLatitude = cos(latitude);
-                    nZ = sin(latitude);
-                    kZ = radiiSquaredZ * nZ;
-                    heightSample -= skirtHeight;
-                }
+                //OS-1 Fix texture rendering and artifacts
+                //
+                // if (colIndex !== col || rowIndex !== row) {
+                //     var percentage = 0.00001;
+                //     if (colIndex < 0) {
+                //         longitude -= percentage * rectangleWidth;
+                //     } else {
+                //         longitude += percentage * rectangleWidth;
+                //     }
+                //     if (rowIndex < 0) {
+                //         latitude += percentage * rectangleHeight;
+                //     } else {
+                //         latitude -= percentage * rectangleHeight;
+                //     }
+                //
+                //     cosLatitude = cos(latitude);
+                //     nZ = sin(latitude);
+                //     kZ = radiiSquaredZ * nZ;
+                //     heightSample -= skirtHeight;
+                // }
 
                 var nX = cosLatitude * cos(longitude);
                 var nY = cosLatitude * sin(longitude);
