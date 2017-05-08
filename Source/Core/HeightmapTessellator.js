@@ -1,40 +1,40 @@
 /*global define*/
 define([
-        './AxisAlignedBoundingBox',
-        './BoundingSphere',
-        './Cartesian2',
-        './Cartesian3',
-        './defaultValue',
-        './defined',
-        './DeveloperError',
-        './Ellipsoid',
-        './EllipsoidalOccluder',
-        './freezeObject',
-        './Math',
-        './Matrix4',
-        './OrientedBoundingBox',
-        './Rectangle',
-        './TerrainEncoding',
-        './Transforms',
-        './WebMercatorProjection'
-    ], function(
-        AxisAlignedBoundingBox,
-        BoundingSphere,
-        Cartesian2,
-        Cartesian3,
-        defaultValue,
-        defined,
-        DeveloperError,
-        Ellipsoid,
-        EllipsoidalOccluder,
-        freezeObject,
-        CesiumMath,
-        Matrix4,
-        OrientedBoundingBox,
-        Rectangle,
-        TerrainEncoding,
-        Transforms,
-        WebMercatorProjection) {
+    './AxisAlignedBoundingBox',
+    './BoundingSphere',
+    './Cartesian2',
+    './Cartesian3',
+    './defaultValue',
+    './defined',
+    './DeveloperError',
+    './Ellipsoid',
+    './EllipsoidalOccluder',
+    './freezeObject',
+    './Math',
+    './Matrix4',
+    './OrientedBoundingBox',
+    './Rectangle',
+    './TerrainEncoding',
+    './Transforms',
+    './WebMercatorProjection'
+], function(
+    AxisAlignedBoundingBox,
+    BoundingSphere,
+    Cartesian2,
+    Cartesian3,
+    defaultValue,
+    defined,
+    DeveloperError,
+    Ellipsoid,
+    EllipsoidalOccluder,
+    freezeObject,
+    CesiumMath,
+    Matrix4,
+    OrientedBoundingBox,
+    Rectangle,
+    TerrainEncoding,
+    Transforms,
+    WebMercatorProjection) {
     'use strict';
 
     /**
@@ -214,11 +214,8 @@ define([
         var elementMultiplier = defaultValue(structure.elementMultiplier, HeightmapTessellator.DEFAULT_STRUCTURE.elementMultiplier);
         var isBigEndian = defaultValue(structure.isBigEndian, HeightmapTessellator.DEFAULT_STRUCTURE.isBigEndian);
 
-        var rectangleWidth = Rectangle.computeWidth(nativeRectangle);
-        var rectangleHeight = Rectangle.computeHeight(nativeRectangle);
-
-        var granularityX = rectangleWidth / (width - 1);
-        var granularityY = rectangleHeight / (height - 1);
+        var granularityX = Rectangle.computeWidth(nativeRectangle) / (width - 1);
+        var granularityY = Rectangle.computeHeight(nativeRectangle) / (height - 1);
 
         var radiiSquared = ellipsoid.radiiSquared;
         var radiiSquaredX = radiiSquared.x;
@@ -340,33 +337,12 @@ define([
 
                 heightSample = (heightSample * heightScale + heightOffset) * exaggeration;
 
-                var u = (longitude - geographicWest) / (geographicEast - geographicWest);
-                u = CesiumMath.clamp(u, 0.0, 1.0);
-                uvs[index] = new Cartesian2(u, v);
-
                 maximumHeight = Math.max(maximumHeight, heightSample);
                 minimumHeight = Math.min(minimumHeight, heightSample);
 
-                //OS-1 Fix texture rendering and artifacts
-                //
-                // if (colIndex !== col || rowIndex !== row) {
-                //     var percentage = 0.00001;
-                //     if (colIndex < 0) {
-                //         longitude -= percentage * rectangleWidth;
-                //     } else {
-                //         longitude += percentage * rectangleWidth;
-                //     }
-                //     if (rowIndex < 0) {
-                //         latitude += percentage * rectangleHeight;
-                //     } else {
-                //         latitude -= percentage * rectangleHeight;
-                //     }
-                //
-                //     cosLatitude = cos(latitude);
-                //     nZ = sin(latitude);
-                //     kZ = radiiSquaredZ * nZ;
-                //     heightSample -= skirtHeight;
-                // }
+                if (colIndex !== col || rowIndex !== row) {
+                    heightSample -= skirtHeight;
+                }
 
                 var nX = cosLatitude * cos(longitude);
                 var nY = cosLatitude * sin(longitude);
@@ -388,6 +364,10 @@ define([
 
                 positions[index] = position;
                 heights[index] = heightSample;
+
+                var u = (longitude - geographicWest) / (geographicEast - geographicWest);
+                u = CesiumMath.clamp(u, 0.0, 1.0);
+                uvs[index] = new Cartesian2(u, v);
 
                 if (includeWebMercatorT) {
                     webMercatorTs[index] = webMercatorT;
