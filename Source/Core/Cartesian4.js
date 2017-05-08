@@ -417,6 +417,9 @@ define([
 
         var magnitude = Cartesian4.magnitude(cartesian);
 
+        // OS-3 Fix magnitude = 0
+        if(!magnitude) { return cartesian; }
+
         result.x = cartesian.x / magnitude;
         result.y = cartesian.y / magnitude;
         result.z = cartesian.z / magnitude;

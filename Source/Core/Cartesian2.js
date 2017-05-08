@@ -382,6 +382,9 @@ define([
 
         var magnitude = Cartesian2.magnitude(cartesian);
 
+        // OS-3 Fix magnitude = 0
+        if(!magnitude) { return cartesian; }
+
         result.x = cartesian.x / magnitude;
         result.y = cartesian.y / magnitude;
 
