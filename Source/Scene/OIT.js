@@ -45,9 +45,11 @@ define([
         this._translucentMultipassSupport = false;
         this._translucentMRTSupport = false;
 
-        var extensionsSupported = context.floatingPointTexture && context.depthTexture;
-        this._translucentMRTSupport = context.drawBuffers && extensionsSupported;
-        this._translucentMultipassSupport = !this._translucentMRTSupport && extensionsSupported;
+        // OS-2 Disable Multipass to support Intel GPU
+        //
+        // var extensionsSupported = context.floatingPointTexture && context.depthTexture;
+        // this._translucentMRTSupport = context.drawBuffers && extensionsSupported;
+        // this._translucentMultipassSupport = !this._translucentMRTSupport && extensionsSupported;
 
         this._opaqueFBO = undefined;
         this._opaqueTexture = undefined;
