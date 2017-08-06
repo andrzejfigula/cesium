@@ -79,8 +79,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to Cesiu
    * [Guillaume Beraudo](https://github.com/gberaudo)
 * [EndPoint](https://www.endpoint.com/)
    * [Dmitry Kiselev](https://github.com/kiselev-dv)
+* [Safe Software](https://www.safe.com)
+   * [Joel Depooter](https://github.com/JDepooter)
 * [Bentley Systems, Inc.](https://www.bentley.com)
    * [Paul Connelly](https://github.com/pmconne)
+   * [Jason Crow](https://github.com/jason-crow)
 * [Flightradar24 AB](https://www.flightradar24.com)
    * [Aleksei Kalmykov](https://github.com/kalmykov)
 
@@ -145,3 +148,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to Cesiu
 * [Ryan King](https://github.com/ryki2658)
 * [Jason Wohlgemuth](https://github.com/jhwohlgemuth)
 * [Hülya Yurtman](https://github.com/hulyayurtman)
+* [Esra ERİK](https://github.com/esraerik)
+* [Rishabh Shah](https://github.com/rms13)
+* [Rudraksha Shah](https://github.com/Rudraksha20)
+* [Cody Guldner](https://github.com/burn123)
+
