@@ -3,7 +3,6 @@ Change Log
 ### 1.38 - 2017-10-02
 
 * Breaking changes
-   * `HeadingPitchRoll.fromQuaternion`, `Matrix3.fromHeadingPitchRoll`, `Quaternion.fromHeadingPitchRoll`, `Transforms.headingPitchRollToFixedFrame`, and `Transforms.headingPitchRollQuaternion` now use the classical orientation of heading and pitch calculated counter-clockwise. With this new behavior, heading and pitch need to be the negative of their previous values. The warning message will be removed in Cesium 1.40.[#5666](https://github.com/AnalyticalGraphicsInc/cesium/issues/5666)
    * `Scene/CullingVolume` has been removed. Use `Core/CullingVolume`.
    * `Scene/OrthographicFrustum` has been removed. Use `Core/OrthographicFrustum`.
    * `Scene/OrthographicOffCenterFrustum` has been removed. Use `Core/OrthographicOffCenterFrustum`.
@@ -19,6 +18,7 @@ Change Log
 * Fixed a 3D Tiles point cloud bug causing a stray point to appear at the center of the screen on certain hardware. [#5599](https://github.com/AnalyticalGraphicsInc/cesium/issues/5599)
 * Fixed removing multiple event listeners within event callbacks. [#5827](https://github.com/AnalyticalGraphicsInc/cesium/issues/5827)
 * Running `buildApps` now creates a built version of Sandcastle which uses the built version of Cesium for better performance.
+* Fixed a tileset traversal bug when the `skipLevelOfDetail` optimization is off. [#5869](https://github.com/AnalyticalGraphicsInc/cesium/issues/5869)
 
 ### 1.37 - 2017-09-01
 
