@@ -216,6 +216,11 @@ define([
         var granularityX = Rectangle.computeWidth(nativeRectangle) / (width - 1);
         var granularityY = Rectangle.computeHeight(nativeRectangle) / (height - 1);
 
+		if (!isGeographic) {
+            rectangleWidth *= oneOverGlobeSemimajorAxis;
+            rectangleHeight *= oneOverGlobeSemimajorAxis;
+        }
+
         var radiiSquared = ellipsoid.radiiSquared;
         var radiiSquaredX = radiiSquared.x;
         var radiiSquaredY = radiiSquared.y;
