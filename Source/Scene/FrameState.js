@@ -138,6 +138,7 @@ define([
              * @default false
              */
             render : false,
+
             /**
              * <code>true</code> if the primitive should update for a picking pass, <code>false</code> otherwise.
              *
@@ -151,7 +152,21 @@ define([
              * @type {Boolean}
              * @default false
              */
-            depth : false
+            depth : false,
+
+            /**
+             * <code>true</code> if the primitive should update for a per-feature post-process pass, <code>false</code> otherwise.
+             * @type {Boolean}
+             * @default false
+             */
+            postProcess : false,
+
+            /**
+             * <code>true</code> if the primitive should update for an offscreen pass, <code>false</code> otherwise.
+             * @type {Boolean}
+             * @default false
+             */
+            offscreen : false
         };
 
         /**
@@ -208,7 +223,14 @@ define([
              * @type {Number}
              * @default undefined
              */
-            sse : undefined
+            sse : undefined,
+            /**
+             * The minimum brightness of terrain with fog applied.
+             *
+             * @type {Number}
+             * @default undefined
+             */
+            minimumBrightness : undefined
         };
 
         /**
@@ -218,12 +240,18 @@ define([
          */
         this.terrainExaggeration = 1.0;
 
-        this.shadowHints = {
+        this.shadowState = {
             /**
              * Whether there are any active shadow maps this frame.
              * @type {Boolean}
              */
             shadowsEnabled : true,
+
+            /**
+             * Whether there are any active shadow maps that originate from light sources. Does not
+             * include shadow maps that are used for analytical purposes.
+             */
+            lightShadowsEnabled : true,
 
             /**
              * All shadow maps that are enabled this frame.
@@ -296,6 +324,28 @@ define([
          * @type {Number}
          */
         this.minimumDisableDepthTestDistance = undefined;
+
+        /**
+         * When <code>false</code>, 3D Tiles will render normally. When <code>true</code>, classified 3D Tile geometry will render normally and
+         * unclassified 3D Tile geometry will render with the color multiplied with {@link FrameState#invertClassificationColor}.
+         * @type {Boolean}
+         * @default false
+         */
+        this.invertClassification = false;
+
+        /**
+         * The highlight color of unclassified 3D Tile geometry when {@link FrameState#invertClassification} is <code>true</code>.
+         * @type {Color}
+         */
+        this.invertClassificationColor = undefined;
+
+        /**
+         * Whether or not the scene uses a logarithmic depth buffer.
+         *
+         * @type {Boolean}
+         * @default false
+         */
+        this.useLogDepth = false;
     }
 
     /**

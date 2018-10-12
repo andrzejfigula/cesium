@@ -8,6 +8,7 @@ define([
         '../Core/destroyObject',
         '../Core/DeveloperError',
         '../Core/Ellipsoid',
+        '../Core/HeadingPitchRoll',
         '../Core/IntersectionTests',
         '../Core/isArray',
         '../Core/KeyboardEventModifier',
@@ -35,6 +36,7 @@ define([
         destroyObject,
         DeveloperError,
         Ellipsoid,
+        HeadingPitchRoll,
         IntersectionTests,
         isArray,
         KeyboardEventModifier,
@@ -95,7 +97,7 @@ define([
          */
         this.enableZoom = true;
         /**
-         * If true, allows the user to rotate the camera.  If false, the camera is locked to the current heading.
+         * If true, allows the user to rotate the world which translates the user's position.
          * This flag only applies in 2D and 3D.
          * @type {Boolean}
          * @default true
@@ -446,6 +448,9 @@ define([
     var scratchCartesian = new Cartesian3();
     var scratchCartesianTwo = new Cartesian3();
     var scratchCartesianThree = new Cartesian3();
+    var scratchZoomViewOptions = {
+      orientation: new HeadingPitchRoll()
+    };
 
     function handleZoom(object, startPosition, movement, zoomFactor, distanceMeasure, unitPositionDotDirection) {
         var percentage = 1.0;
@@ -485,6 +490,11 @@ define([
         var camera = scene.camera;
         var mode = scene.mode;
 
+        var orientation = scratchZoomViewOptions.orientation;
+        orientation.heading = camera.heading;
+        orientation.pitch = camera.pitch;
+        orientation.roll = camera.roll;
+
         if (camera.frustum instanceof OrthographicFrustum) {
             if (Math.abs(distance) > 0.0) {
                 camera.zoomIn(distance);
@@ -502,7 +512,12 @@ define([
             object._zoomMouseStart = Cartesian2.clone(startPosition, object._zoomMouseStart);
 
             if (defined(object._globe)) {
-                pickedPosition = mode !== SceneMode.SCENE2D ? pickGlobe(object, startPosition, scratchPickCartesian) : camera.getPickRay(startPosition, scratchZoomPickRay).origin;
+                if (mode === SceneMode.SCENE2D) {
+                    pickedPosition = camera.getPickRay(startPosition, scratchZoomPickRay).origin;
+                    pickedPosition = Cartesian3.fromElements(pickedPosition.y, pickedPosition.z, pickedPosition.x);
+                } else {
+                    pickedPosition = pickGlobe(object, startPosition, scratchPickCartesian);
+                }
             }
             if (defined(pickedPosition)) {
                 object._useZoomWorldPosition = true;
@@ -542,6 +557,7 @@ define([
 
                     if ((camera.position.x < 0.0 && savedX > 0.0) || (camera.position.x > 0.0 && savedX < 0.0)) {
                         pickedPosition = camera.getPickRay(startPosition, scratchZoomPickRay).origin;
+                        pickedPosition = Cartesian3.fromElements(pickedPosition.y, pickedPosition.z, pickedPosition.x);
                         object._zoomWorldPosition = Cartesian3.clone(pickedPosition, object._zoomWorldPosition);
                     }
                 }
@@ -646,6 +662,7 @@ define([
                         Cartesian3.cross(camera.direction, camera.up, camera.right);
                         Cartesian3.cross(camera.right, camera.direction, camera.up);
 
+                        camera.setView(scratchZoomViewOptions);
                         return;
                     }
 
@@ -681,7 +698,7 @@ define([
             }
 
             var rayDirection = ray.direction;
-            if (mode === SceneMode.COLUMBUS_VIEW) {
+            if (mode === SceneMode.COLUMBUS_VIEW || mode === SceneMode.SCENE2D) {
                 Cartesian3.fromElements(rayDirection.y, rayDirection.z, rayDirection.x, rayDirection);
             }
 
@@ -691,6 +708,8 @@ define([
         } else {
             camera.zoomIn(distance);
         }
+
+        camera.setView(scratchZoomViewOptions);
     }
 
     var translate2DStart = new Ray();
@@ -702,6 +721,9 @@ define([
         var camera = scene.camera;
         var start = camera.getPickRay(movement.startPosition, translate2DStart).origin;
         var end = camera.getPickRay(movement.endPosition, translate2DEnd).origin;
+
+        start = Cartesian3.fromElements(start.y, start.z, start.x, start);
+        end = Cartesian3.fromElements(end.y, end.z, end.x, end);
 
         var direction = Cartesian3.subtract(start, end, scratchTranslateP0);
         var distance = Cartesian3.magnitude(direction);
@@ -819,7 +841,7 @@ define([
         }
 
         var ray = camera.getPickRay(mousePosition, pickGlobeScratchRay);
-        var rayIntersection = globe.pick(ray, scene, scratchRayIntersection);
+        var rayIntersection = globe.pickWorldCoordinates(ray, scene, scratchRayIntersection);
 
         var pickDistance = defined(depthIntersection) ? Cartesian3.distance(depthIntersection, camera.positionWC) : Number.POSITIVE_INFINITY;
         var rayDistance = defined(rayIntersection) ? Cartesian3.distance(rayIntersection, camera.positionWC) : Number.POSITIVE_INFINITY;
@@ -1981,8 +2003,6 @@ define([
      * Once an object is destroyed, it should not be used; calling any function other than
      * <code>isDestroyed</code> will result in a {@link DeveloperError} exception.  Therefore,
      * assign the return value (<code>undefined</code>) to the object as done in the example.
-     *
-     * @returns {undefined}
      *
      * @exception {DeveloperError} This object was destroyed, i.e., destroy() was called.
      *

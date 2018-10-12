@@ -1,5 +1,4 @@
 define([
-        './Sampler',
         '../Core/BoundingRectangle',
         '../Core/Cartesian2',
         '../Core/Cartesian3',
@@ -16,9 +15,9 @@ define([
         '../Core/OrthographicFrustum',
         '../Core/Simon1994PlanetaryPositions',
         '../Core/Transforms',
-        '../Scene/SceneMode'
+        '../Scene/SceneMode',
+        './Sampler'
     ], function(
-        Sampler,
         BoundingRectangle,
         Cartesian2,
         Cartesian3,
@@ -35,7 +34,8 @@ define([
         OrthographicFrustum,
         Simon1994PlanetaryPositions,
         Transforms,
-        SceneMode) {
+        SceneMode,
+        Sampler) {
     'use strict';
 
     /**
@@ -61,6 +61,9 @@ define([
         this._entireFrustum = new Cartesian2();
         this._currentFrustum = new Cartesian2();
         this._frustumPlanes = new Cartesian4();
+        this._log2FarDistance = undefined;
+        this._log2FarPlusOne = undefined;
+        this._log2NearDistance = undefined;
 
         this._frameState = undefined;
         this._temeToPseudoFixed = Matrix3.clone(Matrix4.IDENTITY);
@@ -158,6 +161,8 @@ define([
         this._environmentMap = new Sampler();
 
         this._fogDensity = undefined;
+
+        this._invertClassificationColor = undefined;
 
         this._imagerySplitPosition = 0.0;
         this._pixelSizePerMeter = undefined;
@@ -640,6 +645,39 @@ define([
         },
 
         /**
+         * The log2 of the current frustum's far distance. Used to compute the log depth.
+         * @memberof UniformState.prototype
+         * @type {Number}
+         */
+        log2FarDistance : {
+            get : function() {
+                return this._log2FarDistance;
+            }
+        },
+
+        /**
+         * The log2 of 1 + the current frustum's far distance. Used to reverse log depth.
+         * @memberof UniformState.prototype
+         * @type {Number}
+         */
+        log2FarPlusOne : {
+            get : function() {
+                return this._log2FarPlusOne;
+            }
+        },
+
+        /**
+         * The log2 current frustum's near distance. Used when writing log depth in the fragment shader.
+         * @memberof UniformState.prototype
+         * @type {Number}
+         */
+        log2NearDistance : {
+            get : function() {
+                return this._log2NearDistance;
+            }
+        },
+
+        /**
          * The the height (<code>x</code>) and the height squared (<code>y</code>)
          * in meters of the camera above the 2D world plane. This uniform is only valid
          * when the {@link SceneMode} equal to <code>SCENE2D</code>.
@@ -847,6 +885,30 @@ define([
             get : function() {
                 return this._minimumDisableDepthTestDistance;
             }
+        },
+
+        /**
+         * The highlight color of unclassified 3D Tiles.
+         *
+         * @memberof UniformState.prototype
+         * @type {Color}
+         */
+        invertClassificationColor : {
+            get : function() {
+                return this._invertClassificationColor;
+            }
+        },
+
+        /**
+         * Whether or not the current projection is orthographic in 3D.
+         *
+         * @memberOf UniformState.prototype
+         * @type {Boolean}
+         */
+        orthographicIn3D : {
+            get : function() {
+                return this._orthographicIn3D;
+            }
         }
     });
 
@@ -961,6 +1023,10 @@ define([
         this._currentFrustum.x = frustum.near;
         this._currentFrustum.y = frustum.far;
 
+        this._log2FarDistance = 2.0 / CesiumMath.log2(frustum.far + 1.0);
+        this._log2FarPlusOne = CesiumMath.log2(frustum.far + 1.0);
+        this._log2NearDistance = CesiumMath.log2(frustum.near);
+
         if (defined(frustum._offCenterFrustum)) {
             frustum = frustum._offCenterFrustum;
         }
@@ -1011,6 +1077,8 @@ define([
         this._environmentMap = defaultValue(frameState.environmentMap, frameState.context.defaultCubeMap);
 
         this._fogDensity = frameState.fog.density;
+
+        this._invertClassificationColor = frameState.invertClassificationColor;
 
         this._frameState = frameState;
         this._temeToPseudoFixed = Transforms.computeTemeToPseudoFixedMatrix(frameState.time, this._temeToPseudoFixed);

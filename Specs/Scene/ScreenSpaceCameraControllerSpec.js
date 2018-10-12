@@ -44,7 +44,7 @@ defineSuite([
         DomEventSimulator) {
     'use strict';
 
-    var usePointerEvents = FeatureDetection.supportsPointerEvents();
+    var usePointerEvents;
     var scene;
     var canvas;
     var camera;
@@ -64,7 +64,7 @@ defineSuite([
         this.getHeight = function(cartographic) {
             return 0.0;
         };
-        this.pick = function() {
+        this.pickWorldCoordinates = function() {
             return new Cartesian3(0.0, 0.0, 1.0);
         };
         this._surface = {
@@ -80,6 +80,7 @@ defineSuite([
         };
     }
     beforeAll(function() {
+        usePointerEvents = FeatureDetection.supportsPointerEvents();
         canvas = createCanvas(1024, 768);
     });
 
@@ -849,19 +850,31 @@ defineSuite([
     it('zoom in 3D with wheel', function() {
         setUp3D();
         var position = Cartesian3.clone(camera.position);
+        var heading = camera.heading;
+        var pitch = camera.pitch;
+        var roll = camera.roll;
 
         simulateMouseWheel(120);
         updateController();
         expect(Cartesian3.magnitude(position)).toBeGreaterThan(Cartesian3.magnitude(camera.position));
+        expect(camera.heading).toBeCloseTo(heading, 10);
+        expect(camera.pitch).toBeCloseTo(pitch, 10);
+        expect(camera.roll).toBeCloseTo(roll, 10);
     });
 
     it('zoom out in 3D with wheel', function() {
         setUp3D();
         var position = Cartesian3.clone(camera.position);
+        var heading = camera.heading;
+        var pitch = camera.pitch;
+        var roll = camera.roll;
 
         simulateMouseWheel(-120);
         updateController();
         expect(Cartesian3.magnitude(position)).toBeLessThan(Cartesian3.magnitude(camera.position));
+        expect(camera.heading).toBeCloseTo(heading, 10);
+        expect(camera.pitch).toBeCloseTo(pitch, 10);
+        expect(camera.roll).toBeCloseTo(roll, 10);
     });
 
     it('zoom in 3D with orthographic projection', function() {
